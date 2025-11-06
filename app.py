@@ -88,47 +88,31 @@ def registrar_devolucao(chave, usuario):
     conn.commit()
 
 def carregar_chaves():
-    return pd.read_sql("SELECT chave, usuario, status, data FROM chaves", conn)
+    return pd.read_sql("SELECT chave AS 'Chave', usuario AS 'Usuário/Chapa', status AS 'Status', data AS 'Data' FROM chaves", conn)
 
 def carregar_historico():
-    return pd.read_sql("SELECT chave, usuario, acao, status, data FROM historico", conn)
+    return pd.read_sql("SELECT chave AS 'Chave', usuario AS 'Usuário/Chapa', acao AS 'Ação', status AS 'Status', data AS 'Data' FROM historico", conn)
 
 # ==============================
 # 🧭 MENU PRINCIPAL (BOTÕES)
 # ==============================
 col1, col2, col3, col4 = st.columns(4)
 with col1:
-    ver_chaves = st.button("📋 Ver Chaves")
-with col2:
     novo_emp = st.button("➕ Novo Empréstimo")
-with col3:
+with col2:
     devolucao = st.button("🔁 Registrar Devolução")
-with col4:
+with col3:
     historico = st.button("🕓 Histórico")
+with col4:
+    limpar = st.button("🧹 Limpar Campos")
 
 st.markdown("---")
 
 # ==============================
-# 📋 TELA 1 - VER CHAVES
+# ➕ NOVO EMPRÉSTIMO
 # ==============================
-if ver_chaves:
-    st.subheader("📋 Situação Atual das Chaves")
-    df = carregar_chaves()
-    if df.empty:
-        st.info("Nenhum registro encontrado ainda.")
-    else:
-        st.dataframe(df, use_container_width=True)
-        st.download_button(
-            "⬇️ Baixar Planilha Excel",
-            df.to_excel(index=False).encode("utf-8"),
-            "controle_chaves.xlsx"
-        )
-
-# ==============================
-# ➕ TELA 2 - NOVO EMPRÉSTIMO
-# ==============================
-elif novo_emp:
-    st.subheader("➕ Registrar Novo Empréstimo")
+if novo_emp:
+    st.subheader("➕ Registrar Novo Empréstimo de Chave")
     col1, col2 = st.columns(2)
     with col1:
         chave = st.text_input("Número da Chave:")
@@ -142,7 +126,7 @@ elif novo_emp:
             st.warning("⚠️ Preencha todos os campos antes de salvar.")
 
 # ==============================
-# 🔁 TELA 3 - DEVOLUÇÃO
+# 🔁 REGISTRAR DEVOLUÇÃO
 # ==============================
 elif devolucao:
     st.subheader("🔁 Registrar Devolução de Chave")
@@ -159,7 +143,7 @@ elif devolucao:
             st.warning("⚠️ Preencha todos os campos antes de confirmar.")
 
 # ==============================
-# 🕓 TELA 4 - HISTÓRICO
+# 🕓 HISTÓRICO
 # ==============================
 elif historico:
     st.subheader("🕓 Histórico de Movimentações")
@@ -173,6 +157,23 @@ elif historico:
             df_hist.to_csv(index=False).encode("utf-8"),
             "historico_movimentacoes.csv"
         )
+
+# ==============================
+# 📊 SITUAÇÃO ATUAL (sempre visível)
+# ==============================
+st.markdown("---")
+st.subheader("📋 Situação Atual das Chaves")
+
+df = carregar_chaves()
+if df.empty:
+    st.info("Nenhum registro encontrado ainda.")
+else:
+    st.dataframe(df, use_container_width=True)
+    st.download_button(
+        "⬇️ Baixar Planilha Excel",
+        df.to_excel(index=False).encode("utf-8"),
+        "controle_chaves.xlsx"
+    )
 
 # ==============================
 # 📍 RODAPÉ
