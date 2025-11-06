@@ -163,6 +163,11 @@ elif st.session_state.pagina == "historico":
 # ==============================
 # 📊 SITUAÇÃO ATUAL (FIXA)
 # ==============================
+import io
+
+# ==============================
+# 📊 SITUAÇÃO ATUAL (FIXA)
+# ==============================
 st.markdown("---")
 st.subheader("📋 Situação Atual das Chaves")
 
@@ -171,11 +176,19 @@ if df.empty:
     st.info("Nenhum registro encontrado ainda.")
 else:
     st.dataframe(df, use_container_width=True)
+
+    # ✅ Corrigido: gerar Excel em memória
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="Chaves")
+
     st.download_button(
-        "⬇️ Baixar Planilha Excel",
-        df.to_excel(index=False).encode("utf-8"),
-        "controle_chaves.xlsx"
+        label="⬇️ Baixar Planilha Excel",
+        data=buffer.getvalue(),
+        file_name="controle_chaves.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
 
 # ==============================
 # 📍 RODAPÉ
