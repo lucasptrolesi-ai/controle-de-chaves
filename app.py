@@ -1,205 +1,155 @@
-# ===========================================
-# 🔑 SISTEMA DE CONTROLE DE CHAVES ONLINE 3.2
-# ===========================================
-# ✅ Cria arquivos automaticamente se não existirem
-# ✅ Lê e grava base Excel
-# ✅ Registro de empréstimos e devoluções
-# ✅ Histórico automático
-# ✅ Funciona sem base inicial
-# ===========================================
-
 import streamlit as st
 import pandas as pd
-from datetime import datetime
 import os
+from datetime import datetime
 
 # ==============================
-# ⚙️ Configuração da página
+# 📂 Configuração inicial
 # ==============================
-st.set_page_config(page_title="Controle de Chaves", page_icon="🔑", layout="wide")
+st.set_page_config(page_title="Sistema de Controle de Chaves", layout="wide")
 
-# ==============================
-# 📂 Arquivos
-# ==============================
 ARQUIVO_DADOS = "controle_chaves.xlsx"
 ARQUIVO_HISTORICO = "historico_movimentacoes.xlsx"
 
-# ✅ Cria automaticamente os arquivos, se não existirem
-if not os.path.exists(ARQUIVO_DADOS):
-    df_vazio = pd.DataFrame(columns=["Chave", "Usuário/Chapa", "Status", "Data"])
-    df_vazio.to_excel(ARQUIVO_DADOS, index=False)
-
-if not os.path.exists(ARQUIVO_HISTORICO):
-    hist_vazio = pd.DataFrame(columns=["Chave", "Usuário/Chapa", "Ação", "Status", "Data"])
-    hist_vazio.to_excel(ARQUIVO_HISTORICO, index=False)
+# Garante que o diretório atual existe
+os.makedirs(os.getcwd(), exist_ok=True)
 
 # ==============================
-# 🧩 Funções auxiliares
+# 💾 Funções auxiliares
 # ==============================
-def carregar_dados(caminho):
-    if os.path.exists(caminho):
-        df = pd.read_excel(caminho)
+def carregar_dados():
+    """Carrega ou cria o arquivo principal."""
+    if os.path.exists(ARQUIVO_DADOS):
+        return pd.read_excel(ARQUIVO_DADOS)
     else:
         df = pd.DataFrame(columns=["Chave", "Usuário/Chapa", "Status", "Data"])
-    df.columns = [col.strip().title() for col in df.columns]
-    return df
+        df.to_excel(ARQUIVO_DADOS, index=False)
+        return df
+
+
+def carregar_historico():
+    """Carrega ou cria o arquivo de histórico."""
+    if os.path.exists(ARQUIVO_HISTORICO):
+        return pd.read_excel(ARQUIVO_HISTORICO)
+    else:
+        hist = pd.DataFrame(columns=["Chave", "Usuário/Chapa", "Ação", "Status", "Data"])
+        hist.to_excel(ARQUIVO_HISTORICO, index=False)
+        return hist
+
 
 def salvar_dados(df, caminho):
-    df.to_excel(caminho, index=False)
+    """Salva DataFrame em Excel com tratamento de erro."""
+    try:
+        df.to_excel(caminho, index=False)
+        st.toast(f"💾 Dados salvos com sucesso: {caminho}")
+    except Exception as e:
+        st.error(f"⚠️ Erro ao salvar: {e}")
 
-def registrar_movimentacao(chave, usuario, acao, status):
-    data = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    nova = pd.DataFrame([{
-        "Chave": chave,
-        "Usuário/Chapa": usuario,
-        "Ação": acao,
-        "Status": status,
-        "Data": data
-    }])
-    if os.path.exists(ARQUIVO_HISTORICO):
-        hist = pd.read_excel(ARQUIVO_HISTORICO)
-        hist = pd.concat([hist, nova], ignore_index=True)
-    else:
-        hist = nova
-    hist.to_excel(ARQUIVO_HISTORICO, index=False)
 
 # ==============================
-# 📥 Carregar base inicial
-# ==============================
-df = carregar_dados(ARQUIVO_DADOS)
-
-# ==============================
-# 🎨 Cabeçalho
+# 📊 Interface principal
 # ==============================
 st.title("🔑 Sistema de Controle de Chaves")
-st.markdown("Gerencie **empréstimos, devoluções e duplicadas** com histórico automático e gráficos em tempo real.")
+st.write("Gerencie **empréstimos**, **devoluções** e histórico de movimentações em tempo real.")
+
+dados = carregar_dados()
+historico = carregar_historico()
 
 # ==============================
-# 📤 Atualizar base manualmente
+# 🔍 Filtros de visualização
 # ==============================
-st.sidebar.header("📁 Atualizar Banco de Dados")
-arquivo_upload = st.sidebar.file_uploader("Envie o arquivo controle_chaves.xlsx", type=["xlsx"])
-if arquivo_upload is not None:
-    df = pd.read_excel(arquivo_upload)
-    st.sidebar.success("✅ Base de dados atualizada com sucesso!")
-    salvar_dados(df, ARQUIVO_DADOS)
-
-# ==============================
-# 📊 Visão Geral
-# ==============================
-st.subheader("🔍 Filtros e Visualização")
+st.subheader("🔎 Filtros e Visualização")
 
 col1, col2 = st.columns(2)
 with col1:
-    status_filtro = st.selectbox("Filtrar por status:", ["Todos"] + sorted(df["Status"].dropna().unique().tolist()))
+    filtro_status = st.selectbox("Filtrar por status:", ["Todos", "Emprestado", "Devolvido"])
 with col2:
-    usuario_filtro = st.selectbox("Filtrar por usuário/chapa:", ["Todos"] + sorted(df["Usuário/Chapa"].dropna().unique().tolist()))
+    filtro_usuario = st.selectbox("Filtrar por usuário/chapa:", ["Todos"] + list(dados["Usuário/Chapa"].unique()))
 
-df_filtrado = df.copy()
-if status_filtro != "Todos":
-    df_filtrado = df_filtrado[df_filtrado["Status"] == status_filtro]
-if usuario_filtro != "Todos":
-    df_filtrado = df_filtrado[df_filtrado["Usuário/Chapa"] == usuario_filtro]
+df_filtrado = dados.copy()
+if filtro_status != "Todos":
+    df_filtrado = df_filtrado[df_filtrado["Status"] == filtro_status]
+if filtro_usuario != "Todos":
+    df_filtrado = df_filtrado[df_filtrado["Usuário/Chapa"] == filtro_usuario]
 
-st.dataframe(df_filtrado, use_container_width=True)
+st.dataframe(df_filtrado, width="stretch")
 
 # ==============================
-# 🔘 BOTÕES DE AÇÃO
+# ➕ Novo Empréstimo
 # ==============================
 st.markdown("---")
-col1, col2 = st.columns(2)
+st.subheader("➕ Novo Empréstimo")
 
-with col1:
-    abrir_novo = st.button("➕ Novo Empréstimo")
-with col2:
-    abrir_devolucao = st.button("↩️ Registrar Devolução")
+with st.form("novo_emprestimo"):
+    chave = st.text_input("Número da Chave")
+    usuario = st.text_input("Usuário/Chapa")
+    enviado = st.form_submit_button("Salvar Empréstimo")
 
-# =====================================================
-# 🔹 NOVO EMPRÉSTIMO
-# =====================================================
-if abrir_novo:
-    with st.form("form_emprestimo"):
-        usuario = st.text_input("Usuário/Chapa:")
-        chaves_input = st.text_area("Digite as chaves (separe por vírgula):", placeholder="Exemplo: 101, 102, 105")
-        enviar = st.form_submit_button("Salvar Empréstimos")
+    if enviado:
+        if chave and usuario:
+            nova_linha = pd.DataFrame([{
+                "Chave": chave,
+                "Usuário/Chapa": usuario,
+                "Status": "Emprestado",
+                "Data": datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            }])
+            dados = pd.concat([dados, nova_linha], ignore_index=True)
+            salvar_dados(dados, ARQUIVO_DADOS)
 
-    if enviar:
-        if not usuario or not chaves_input:
-            st.warning("⚠️ Preencha todos os campos.")
+            nova_hist = pd.DataFrame([{
+                "Chave": chave,
+                "Usuário/Chapa": usuario,
+                "Ação": "Emprestado",
+                "Status": "Emprestado",
+                "Data": datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            }])
+            historico = pd.concat([historico, nova_hist], ignore_index=True)
+            salvar_dados(historico, ARQUIVO_HISTORICO)
+            st.success("✅ Empréstimo registrado!")
         else:
-            chaves = [c.strip() for c in chaves_input.split(",") if c.strip()]
-            duplicadas = []
-            for chave in chaves:
-                duplicada = (df["Chave"] == chave) & (df["Status"] == "Empréstimo")
-                if duplicada.any():
-                    duplicadas.append(chave)
-                    nova = pd.DataFrame([{
-                        "Chave": chave,
-                        "Usuário/Chapa": usuario,
-                        "Status": "Duplicada",
-                        "Data": datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-                    }])
-                    df = pd.concat([df, nova], ignore_index=True)
-                    registrar_movimentacao(chave, usuario, "Tentativa de Empréstimo", "Duplicada")
-                else:
-                    nova = pd.DataFrame([{
-                        "Chave": chave,
-                        "Usuário/Chapa": usuario,
-                        "Status": "Empréstimo",
-                        "Data": datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-                    }])
-                    df = pd.concat([df, nova], ignore_index=True)
-                    registrar_movimentacao(chave, usuario, "Empréstimo", "Empréstimo")
+            st.warning("Preencha todos os campos!")
 
-            salvar_dados(df, ARQUIVO_DADOS)
-            if duplicadas:
-                st.error(f"❌ As seguintes chaves já estavam emprestadas: {', '.join(duplicadas)}")
-            st.success(f"✅ Empréstimo registrado com sucesso para {usuario}!")
-
-# =====================================================
-# 🔹 DEVOLUÇÃO DE CHAVES
-# =====================================================
-if abrir_devolucao:
-    usuarios = sorted(df["Usuário/Chapa"].dropna().unique().tolist())
-    if usuarios:
-        usuario_sel = st.selectbox("Selecione o usuário/chapa:", usuarios)
-        chaves_usuario = df[(df["Usuário/Chapa"] == usuario_sel) & (df["Status"] == "Empréstimo")]["Chave"].tolist()
-
-        if chaves_usuario:
-            st.write(f"🔑 Chaves emprestadas por **{usuario_sel}**: {', '.join(map(str, chaves_usuario))}")
-
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("⬅️ Devolução Total"):
-                    df.loc[(df["Usuário/Chapa"] == usuario_sel) & (df["Status"] == "Empréstimo"), "Status"] = "Devolvido"
-                    salvar_dados(df, ARQUIVO_DADOS)
-                    for chave in chaves_usuario:
-                        registrar_movimentacao(chave, usuario_sel, "Devolução Total", "Devolvido")
-                    st.success(f"✅ Todas as chaves de {usuario_sel} foram devolvidas.")
-            with col2:
-                chaves_parciais = st.multiselect("Selecione as chaves a devolver (parcial):", chaves_usuario)
-                if st.button("Confirmar Devolução Parcial"):
-                    if chaves_parciais:
-                        for chave in chaves_parciais:
-                            df.loc[(df["Chave"] == chave) & (df["Status"] == "Empréstimo"), "Status"] = "Devolvido"
-                            registrar_movimentacao(chave, usuario_sel, "Devolução Parcial", "Devolvido")
-                        salvar_dados(df, ARQUIVO_DADOS)
-                        st.success(f"✅ Chaves {', '.join(chaves_parciais)} devolvidas com sucesso.")
-                    else:
-                        st.warning("Selecione pelo menos uma chave.")
-        else:
-            st.info("📭 Este usuário não possui chaves emprestadas.")
-    else:
-        st.info("📂 Nenhum usuário encontrado.")
-
-# =====================================================
-# 🔹 HISTÓRICO
-# =====================================================
+# ==============================
+# 🔁 Registrar Devolução
+# ==============================
 st.markdown("---")
-st.subheader("🕓 Histórico de Movimentações")
-if os.path.exists(ARQUIVO_HISTORICO):
-    hist = pd.read_excel(ARQUIVO_HISTORICO)
-    st.dataframe(hist, use_container_width=True)
-    st.download_button("⬇️ Baixar histórico (CSV)", hist.to_csv(index=False).encode("utf-8"), "historico_chaves.csv")
+st.subheader("🔁 Registrar Devolução")
+
+with st.form("devolucao"):
+    chave_dev = st.text_input("Chave a devolver")
+    usuario_dev = st.text_input("Usuário/Chapa da devolução")
+    enviar_dev = st.form_submit_button("Registrar Devolução")
+
+    if enviar_dev:
+        if chave_dev and usuario_dev:
+            if chave_dev in dados["Chave"].values:
+                dados.loc[dados["Chave"] == chave_dev, "Status"] = "Devolvido"
+                salvar_dados(dados, ARQUIVO_DADOS)
+
+                nova_hist = pd.DataFrame([{
+                    "Chave": chave_dev,
+                    "Usuário/Chapa": usuario_dev,
+                    "Ação": "Devolvido",
+                    "Status": "Devolvido",
+                    "Data": datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                }])
+                historico = pd.concat([historico, nova_hist], ignore_index=True)
+                salvar_dados(historico, ARQUIVO_HISTORICO)
+                st.success("🔙 Devolução registrada!")
+            else:
+                st.warning("❌ Chave não encontrada!")
+        else:
+            st.warning("Preencha todos os campos!")
+
+# ==============================
+# ⏱️ Histórico de movimentações
+# ==============================
+st.markdown("---")
+st.subheader("⏱️ Histórico de Movimentações")
+
+if not historico.empty:
+    st.dataframe(historico, width="stretch")
+    st.download_button("📥 Baixar histórico (CSV)", historico.to_csv(index=False).encode("utf-8"), "historico_chaves.csv")
 else:
-    st.info("📭 Nenhum histórico encontrado ainda.")
+    st.info("📂 Nenhum histórico encontrado ainda.")
+
