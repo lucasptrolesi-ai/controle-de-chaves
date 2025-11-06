@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import sqlite3
 from datetime import datetime
+import io
 
 # ==============================
 # ⚙️ CONFIGURAÇÃO GERAL
@@ -10,12 +11,12 @@ st.set_page_config(page_title="Controle de Chaves", layout="wide")
 
 st.markdown("""
 <style>
-body {background-color: #0e1117; color: white;}
-.stApp {background-color: #0e1117;}
-h1, h2, h3, h4 {text-align: center; color: #00ADB5;}
-/* Botões da navbar */
+body {background-color: #f5f7fa; color: #2e2e2e;}
+.stApp {background-color: #f5f7fa;}
+h1, h2, h3, h4 {text-align: center; color: #005f73;}
+/* Navbar */
 div[data-testid="stHorizontalBlock"] button {
-    background-color: #00ADB5 !important;
+    background-color: #008CBA !important;
     color: white !important;
     border: none !important;
     border-radius: 8px !important;
@@ -25,17 +26,26 @@ div[data-testid="stHorizontalBlock"] button {
     margin-right: 10px !important;
 }
 div[data-testid="stHorizontalBlock"] button:hover {
-    background-color: #06c3cc !important;
-    color: black !important;
-}
-.stTextInput>div>div>input {
-    background-color: #222831 !important;
+    background-color: #00a2d3 !important;
     color: white !important;
-    border: 1px solid #393E46 !important;
+}
+/* Inputs */
+.stTextInput>div>div>input {
+    background-color: #ffffff !important;
+    color: #2e2e2e !important;
+    border: 1px solid #ccd4dd !important;
     border-radius: 6px !important;
 }
-.dataframe {
-    background-color: #222831 !important;
+/* DataFrame */
+[data-testid="stDataFrame"] {
+    background-color: #ffffff !important;
+    border-radius: 6px !important;
+    border: 1px solid #e0e0e0 !important;
+    padding: 10px;
+}
+/* Mensagens */
+.stAlert {
+    border-radius: 8px !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -109,7 +119,6 @@ with col4:
     menu4 = st.button("🧹 Limpar Campos")
 st.markdown("---")
 
-# 🔄 Mantém o estado ativo do menu (para evitar sumir ao digitar)
 if "pagina" not in st.session_state:
     st.session_state.pagina = "inicio"
 
@@ -163,11 +172,6 @@ elif st.session_state.pagina == "historico":
 # ==============================
 # 📊 SITUAÇÃO ATUAL (FIXA)
 # ==============================
-import io
-
-# ==============================
-# 📊 SITUAÇÃO ATUAL (FIXA)
-# ==============================
 st.markdown("---")
 st.subheader("📋 Situação Atual das Chaves")
 
@@ -177,7 +181,6 @@ if df.empty:
 else:
     st.dataframe(df, use_container_width=True)
 
-    # ✅ Corrigido: gerar Excel em memória
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
         df.to_excel(writer, index=False, sheet_name="Chaves")
@@ -189,12 +192,11 @@ else:
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
-
 # ==============================
 # 📍 RODAPÉ
 # ==============================
 st.markdown("---")
 st.markdown(
-    "<p style='text-align:center; color:gray;'>© 2025 - Sistema Corporativo de Controle de Chaves | Desenvolvido por Lucas Trolesi</p>",
+    "<p style='text-align:center; color:#555;'>© 2025 - Sistema Corporativo de Controle de Chaves | Desenvolvido por Lucas Trolesi</p>",
     unsafe_allow_html=True
 )
