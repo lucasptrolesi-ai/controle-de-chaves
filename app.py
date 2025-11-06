@@ -4,57 +4,44 @@ import sqlite3
 from datetime import datetime
 
 # ==============================
-# ⚙️ Configuração da página
+# ⚙️ CONFIGURAÇÃO GERAL
 # ==============================
 st.set_page_config(page_title="Controle de Chaves", layout="wide")
-st.markdown(
-    """
-    <style>
-    body {
-        background-color: #0e1117;
-        color: white;
-    }
-    .stApp {
-        background-color: #0e1117;
-        color: white;
-    }
-    h1, h2, h3 {
-        text-align: center;
-        color: #00ADB5;
-        font-weight: 600;
-    }
-    .css-1d391kg, .stButton>button {
-        background-color: #00ADB5 !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 0.6em 1.2em !important;
-        font-size: 1em !important;
-        font-weight: 600 !important;
-        cursor: pointer;
-    }
-    .stButton>button:hover {
-        background-color: #06c3cc !important;
-        color: black !important;
-    }
-    .stTextInput>div>div>input {
-        background-color: #222831 !important;
-        color: white !important;
-        border: 1px solid #393E46 !important;
-        border-radius: 5px !important;
-    }
-    .stDataFrame {
-        background-color: #222831 !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+
+st.markdown("""
+<style>
+body {background-color: #0e1117; color: white;}
+.stApp {background-color: #0e1117;}
+h1, h2, h3, h4 {text-align: center; color: #00ADB5;}
+button[data-baseweb="button"] {
+    background-color: #00ADB5 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 0.6em 1.4em !important;
+    font-size: 1.1em !important;
+    font-weight: 600 !important;
+}
+button[data-baseweb="button"]:hover {
+    background-color: #06c3cc !important;
+    color: black !important;
+}
+.stTextInput>div>div>input {
+    background-color: #222831 !important;
+    color: white !important;
+    border: 1px solid #393E46 !important;
+    border-radius: 6px !important;
+}
+.dataframe {
+    background-color: #222831 !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 st.markdown("<h1>🔑 Sistema Corporativo de Controle de Chaves</h1>", unsafe_allow_html=True)
 
 # ==============================
-# 🔗 Conexão com o banco SQLite
+# 🔗 BANCO DE DADOS (SQLite)
 # ==============================
 conn = sqlite3.connect("controle_chaves.db", check_same_thread=False)
 cursor = conn.cursor()
@@ -83,7 +70,7 @@ CREATE TABLE IF NOT EXISTS historico (
 conn.commit()
 
 # ==============================
-# 💾 Funções de manipulação
+# 💾 FUNÇÕES
 # ==============================
 def registrar_emprestimo(chave, usuario):
     data = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -107,19 +94,24 @@ def carregar_historico():
     return pd.read_sql("SELECT chave, usuario, acao, status, data FROM historico", conn)
 
 # ==============================
-# 🎨 Interface Corporativa
+# 🧭 MENU PRINCIPAL (BOTÕES)
 # ==============================
-menu = st.sidebar.radio(
-    "Menu Principal",
-    ["📋 Ver Chaves", "➕ Novo Empréstimo", "🔁 Registrar Devolução", "🕓 Histórico"],
-    index=0
-)
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    ver_chaves = st.button("📋 Ver Chaves")
+with col2:
+    novo_emp = st.button("➕ Novo Empréstimo")
+with col3:
+    devolucao = st.button("🔁 Registrar Devolução")
+with col4:
+    historico = st.button("🕓 Histórico")
 
-st.sidebar.markdown("---")
-st.sidebar.markdown("**🌐 Modo: Corporativo | Tema Escuro**")
-st.sidebar.markdown("💾 Banco de Dados: `controle_chaves.db`")
+st.markdown("---")
 
-if menu == "📋 Ver Chaves":
+# ==============================
+# 📋 TELA 1 - VER CHAVES
+# ==============================
+if ver_chaves:
     st.subheader("📋 Situação Atual das Chaves")
     df = carregar_chaves()
     if df.empty:
@@ -132,8 +124,11 @@ if menu == "📋 Ver Chaves":
             "controle_chaves.xlsx"
         )
 
-elif menu == "➕ Novo Empréstimo":
-    st.subheader("➕ Registrar Novo Empréstimo de Chave")
+# ==============================
+# ➕ TELA 2 - NOVO EMPRÉSTIMO
+# ==============================
+elif novo_emp:
+    st.subheader("➕ Registrar Novo Empréstimo")
     col1, col2 = st.columns(2)
     with col1:
         chave = st.text_input("Número da Chave:")
@@ -146,7 +141,10 @@ elif menu == "➕ Novo Empréstimo":
         else:
             st.warning("⚠️ Preencha todos os campos antes de salvar.")
 
-elif menu == "🔁 Registrar Devolução":
+# ==============================
+# 🔁 TELA 3 - DEVOLUÇÃO
+# ==============================
+elif devolucao:
     st.subheader("🔁 Registrar Devolução de Chave")
     col1, col2 = st.columns(2)
     with col1:
@@ -160,7 +158,10 @@ elif menu == "🔁 Registrar Devolução":
         else:
             st.warning("⚠️ Preencha todos os campos antes de confirmar.")
 
-elif menu == "🕓 Histórico":
+# ==============================
+# 🕓 TELA 4 - HISTÓRICO
+# ==============================
+elif historico:
     st.subheader("🕓 Histórico de Movimentações")
     df_hist = carregar_historico()
     if df_hist.empty:
@@ -172,3 +173,12 @@ elif menu == "🕓 Histórico":
             df_hist.to_csv(index=False).encode("utf-8"),
             "historico_movimentacoes.csv"
         )
+
+# ==============================
+# 📍 RODAPÉ
+# ==============================
+st.markdown("---")
+st.markdown(
+    "<p style='text-align:center; color:gray;'>© 2025 - Sistema Corporativo de Controle de Chaves | Desenvolvido por Lucas Trolesi</p>",
+    unsafe_allow_html=True
+)
