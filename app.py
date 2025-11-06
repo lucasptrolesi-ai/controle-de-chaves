@@ -13,16 +13,18 @@ st.markdown("""
 body {background-color: #0e1117; color: white;}
 .stApp {background-color: #0e1117;}
 h1, h2, h3, h4 {text-align: center; color: #00ADB5;}
-button[data-baseweb="button"] {
+/* Botões da navbar */
+div[data-testid="stHorizontalBlock"] button {
     background-color: #00ADB5 !important;
     color: white !important;
     border: none !important;
-    border-radius: 10px !important;
-    padding: 0.6em 1.4em !important;
-    font-size: 1.1em !important;
+    border-radius: 8px !important;
+    padding: 0.6em 1.3em !important;
+    font-size: 1.05em !important;
     font-weight: 600 !important;
+    margin-right: 10px !important;
 }
-button[data-baseweb="button"]:hover {
+div[data-testid="stHorizontalBlock"] button:hover {
     background-color: #06c3cc !important;
     color: black !important;
 }
@@ -66,7 +68,6 @@ CREATE TABLE IF NOT EXISTS historico (
     data TEXT
 )
 """)
-
 conn.commit()
 
 # ==============================
@@ -94,30 +95,40 @@ def carregar_historico():
     return pd.read_sql("SELECT chave AS 'Chave', usuario AS 'Usuário/Chapa', acao AS 'Ação', status AS 'Status', data AS 'Data' FROM historico", conn)
 
 # ==============================
-# 🧭 MENU PRINCIPAL (BOTÕES)
+# 🧭 MENU SUPERIOR FIXO (NAVBAR)
 # ==============================
-col1, col2, col3, col4 = st.columns(4)
+st.markdown("---")
+col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
 with col1:
-    novo_emp = st.button("➕ Novo Empréstimo")
+    menu = st.button("➕ Novo Empréstimo")
 with col2:
-    devolucao = st.button("🔁 Registrar Devolução")
+    menu2 = st.button("🔁 Registrar Devolução")
 with col3:
-    historico = st.button("🕓 Histórico")
+    menu3 = st.button("🕓 Histórico")
 with col4:
-    limpar = st.button("🧹 Limpar Campos")
-
+    menu4 = st.button("🧹 Limpar Campos")
 st.markdown("---")
 
+# 🔄 Mantém o estado ativo do menu (para evitar sumir ao digitar)
+if "pagina" not in st.session_state:
+    st.session_state.pagina = "inicio"
+
+if menu:
+    st.session_state.pagina = "emprestimo"
+elif menu2:
+    st.session_state.pagina = "devolucao"
+elif menu3:
+    st.session_state.pagina = "historico"
+elif menu4:
+    st.session_state.pagina = "inicio"
+
 # ==============================
-# ➕ NOVO EMPRÉSTIMO
+# 📋 PÁGINAS FUNCIONAIS
 # ==============================
-if novo_emp:
+if st.session_state.pagina == "emprestimo":
     st.subheader("➕ Registrar Novo Empréstimo de Chave")
-    col1, col2 = st.columns(2)
-    with col1:
-        chave = st.text_input("Número da Chave:")
-    with col2:
-        usuario = st.text_input("Usuário / Chapa:")
+    chave = st.text_input("Número da Chave:")
+    usuario = st.text_input("Usuário / Chapa:")
     if st.button("💾 Registrar Empréstimo"):
         if chave and usuario:
             registrar_emprestimo(chave, usuario)
@@ -125,16 +136,10 @@ if novo_emp:
         else:
             st.warning("⚠️ Preencha todos os campos antes de salvar.")
 
-# ==============================
-# 🔁 REGISTRAR DEVOLUÇÃO
-# ==============================
-elif devolucao:
+elif st.session_state.pagina == "devolucao":
     st.subheader("🔁 Registrar Devolução de Chave")
-    col1, col2 = st.columns(2)
-    with col1:
-        chave = st.text_input("Número da Chave para Devolução:")
-    with col2:
-        usuario = st.text_input("Usuário / Chapa:")
+    chave = st.text_input("Número da Chave para Devolução:")
+    usuario = st.text_input("Usuário / Chapa:")
     if st.button("📦 Confirmar Devolução"):
         if chave and usuario:
             registrar_devolucao(chave, usuario)
@@ -142,10 +147,7 @@ elif devolucao:
         else:
             st.warning("⚠️ Preencha todos os campos antes de confirmar.")
 
-# ==============================
-# 🕓 HISTÓRICO
-# ==============================
-elif historico:
+elif st.session_state.pagina == "historico":
     st.subheader("🕓 Histórico de Movimentações")
     df_hist = carregar_historico()
     if df_hist.empty:
@@ -159,7 +161,7 @@ elif historico:
         )
 
 # ==============================
-# 📊 SITUAÇÃO ATUAL (sempre visível)
+# 📊 SITUAÇÃO ATUAL (FIXA)
 # ==============================
 st.markdown("---")
 st.subheader("📋 Situação Atual das Chaves")
