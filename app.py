@@ -1,16 +1,16 @@
 # ===========================================
-# 🔑 SISTEMA DE CONTROLE DE CHAVES ONLINE 3.3
+# 🔑 SISTEMA DE CONTROLE DE CHAVES ONLINE 3.4
 # ===========================================
 # ✅ Compatível com Streamlit Cloud e VS Code
 # ✅ Cria arquivos Excel automaticamente
 # ✅ Empréstimos, devoluções e duplicadas
 # ✅ Histórico automático e filtros
+# 🚫 Gráfico de status removido
 # ===========================================
 
 import streamlit as st
 import pandas as pd
 from datetime import datetime
-import matplotlib.pyplot as plt
 import os
 
 # ==============================
@@ -64,7 +64,7 @@ df = carregar_dados(ARQUIVO_DADOS)
 # 🎨 Cabeçalho
 # ==============================
 st.title("🔑 Sistema de Controle de Chaves")
-st.markdown("Gerencie **empréstimos, devoluções e duplicadas** com histórico automático e gráficos em tempo real.")
+st.markdown("Gerencie **empréstimos, devoluções e duplicadas** com histórico automático e filtros dinâmicos.")
 
 # ==============================
 # 📤 Atualizar base manualmente
@@ -77,7 +77,7 @@ if arquivo_upload is not None:
     st.sidebar.success("✅ Base de dados atualizada com sucesso!")
 
 # ==============================
-# 📊 Resumo e gráfico
+# 📊 Resumo geral
 # ==============================
 st.subheader("📊 Situação Atual das Chaves")
 
@@ -91,15 +91,6 @@ col1.metric("🔹 Total", total)
 col2.metric("🔸 Empréstimos", emprestadas)
 col3.metric("🟢 Devolvidas", devolvidas)
 col4.metric("⚠️ Duplicadas", duplicadas)
-
-# === Gráfico Matplotlib ===
-st.markdown("### 📈 Gráfico de Status das Chaves")
-fig, ax = plt.subplots()
-ax.bar(["Empréstimo", "Devolvido", "Duplicada"], [emprestadas, devolvidas, duplicadas],
-       color=["#FFD966", "#93C47D", "#EA9999"])
-ax.set_ylabel("Quantidade")
-ax.set_title("Distribuição de Status das Chaves")
-st.pyplot(fig)
 
 # ==============================
 # 🔍 Filtros e tabela
