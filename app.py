@@ -58,6 +58,16 @@ div[data-testid="stHorizontalBlock"] button:hover,
     padding: 10px;
 }
 
+/* Corrige ícones e botões da tabela (barra lateral direita e controles) */
+[data-testid="stDataFrame"] svg, [data-testid="stDataFrame"] button {
+    color: #000000 !important;  /* ícones pretos */
+    fill: #000000 !important;   /* cor de preenchimento */
+}
+[data-testid="stDataFrame"] button:hover svg {
+    color: #1e3a8a !important;
+    fill: #1e3a8a !important;
+}
+
 /* ===== ALERTAS ===== */
 .stAlert {
     border-radius: 8px !important;
@@ -236,4 +246,3 @@ st.markdown(
     "<p style='text-align:center; color:#d1d5db;'>© 2025 - Sistema Corporativo de Controle de Chaves | Desenvolvido por Lucas Trolesi</p>",
     unsafe_allow_html=True
 )
-# Forçando atualização - versão corrigida com ícones pretos e títulos em markdown
