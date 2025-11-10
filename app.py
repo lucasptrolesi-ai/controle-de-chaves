@@ -76,7 +76,7 @@ div[data-testid="stHorizontalBlock"] button:hover,
 """, unsafe_allow_html=True)
 
 # ======== TÍTULO ========
-st.markdown("<h1><span style='color:black;'>🔑</span> Sistema Corporativo de Controle de Chaves</h1>", unsafe_allow_html=True)
+st.markdown("<h1><span style='color:black;'>🔑</span> S3C </h1>", unsafe_allow_html=True)
 
 # ==============================
 # 🔗 BANCO DE DADOS (SQLite)
