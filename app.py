@@ -9,42 +9,50 @@ import io
 # ==============================
 st.set_page_config(page_title="Controle de Chaves", layout="wide")
 
-# Tema azul corporativo
+# Tema azul-marinho com botões pretos e hover azul
 st.markdown("""
 <style>
 body {background-color: #0f1a3d; color: #ffffff;}
 .stApp {background-color: #0f1a3d;}
 h1, h2, h3, h4, label, p, span, div, input, button, textarea {color: #ffffff !important;}
-/* Navbar */
-div[data-testid="stHorizontalBlock"] button {
-    background-color: #1e3a8a !important;
-    color: white !important;
-    border: none !important;
+
+/* ===== BOTÕES ===== */
+div[data-testid="stHorizontalBlock"] button,
+.stButton>button {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border: 1px solid #2b2b2b !important;
     border-radius: 8px !important;
     padding: 0.6em 1.3em !important;
     font-size: 1.05em !important;
     font-weight: 600 !important;
     margin-right: 10px !important;
+    transition: 0.3s ease-in-out;
 }
-div[data-testid="stHorizontalBlock"] button:hover {
-    background-color: #2b5fc0 !important;
-    color: white !important;
+div[data-testid="stHorizontalBlock"] button:hover,
+.stButton>button:hover {
+    background-color: #1e3a8a !important;
+    color: #ffffff !important;
+    border: 1px solid #3a5acb !important;
 }
-/* Inputs */
+
+/* ===== INPUTS ===== */
 .stTextInput>div>div>input {
     background-color: #1c2750 !important;
     color: #ffffff !important;
     border: 1px solid #3a4a7c !important;
     border-radius: 6px !important;
 }
-/* DataFrame */
+
+/* ===== TABELAS ===== */
 [data-testid="stDataFrame"] {
     background-color: #16224d !important;
     border-radius: 6px !important;
     border: 1px solid #2b3b70 !important;
     padding: 10px;
 }
-/* Mensagens */
+
+/* ===== ALERTAS ===== */
 .stAlert {
     border-radius: 8px !important;
 }
@@ -106,7 +114,7 @@ def carregar_historico():
     return pd.read_sql("SELECT chave AS 'Chave', usuario AS 'Usuário/Chapa', acao AS 'Ação', status AS 'Status', data AS 'Data' FROM historico", conn)
 
 # ==============================
-# 🧭 MENU SUPERIOR FIXO (NAVBAR)
+# 🧭 MENU SUPERIOR
 # ==============================
 st.markdown("---")
 col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
@@ -174,16 +182,24 @@ elif st.session_state.pagina == "historico":
                 df_hist.to_csv(index=False).encode("utf-8"),
                 "historico_movimentacoes.csv"
             )
+    else:
+        st.info("Histórico está oculto no momento.")
 
     st.markdown("---")
-    st.write("🧹 **Limpar histórico da tela (sem apagar do banco ou relatórios):**")
+    st.write("🧹 **Gerenciar histórico exibido na tela (sem alterar o banco ou relatórios):**")
 
-    if st.button("🧼 Limpar Histórico da Tela"):
-        st.session_state.mostrar_historico = False
-        st.info("Histórico ocultado da tela. Dados e relatórios permanecem intactos.")
+    col_a, col_b = st.columns(2)
+    with col_a:
+        if st.button("🧼 Limpar Histórico da Tela"):
+            st.session_state.mostrar_historico = False
+            st.info("Histórico ocultado da tela. Dados e relatórios permanecem salvos.")
+    with col_b:
+        if st.button("👁 Mostrar Histórico Novamente"):
+            st.session_state.mostrar_historico = True
+            st.success("Histórico restaurado na tela com sucesso!")
 
 # ==============================
-# 📊 SITUAÇÃO ATUAL (FIXA)
+# 📊 SITUAÇÃO ATUAL
 # ==============================
 st.markdown("---")
 st.subheader("📋 Situação Atual das Chaves")
