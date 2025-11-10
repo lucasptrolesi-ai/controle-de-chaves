@@ -9,12 +9,12 @@ import io
 # ==============================
 st.set_page_config(page_title="Controle de Chaves", layout="wide")
 
-# Tema escuro elegante
+# Tema azul corporativo
 st.markdown("""
 <style>
-body {background-color: #0e1117; color: #e0e0e0;}
-.stApp {background-color: #0e1117;}
-h1, h2, h3, h4 {text-align: center; color: #4db8ff;}
+body {background-color: #0f1a3d; color: #ffffff;}
+.stApp {background-color: #0f1a3d;}
+h1, h2, h3, h4, label, p, span, div, input, button, textarea {color: #ffffff !important;}
 /* Navbar */
 div[data-testid="stHorizontalBlock"] button {
     background-color: #1e3a8a !important;
@@ -27,21 +27,21 @@ div[data-testid="stHorizontalBlock"] button {
     margin-right: 10px !important;
 }
 div[data-testid="stHorizontalBlock"] button:hover {
-    background-color: #2563eb !important;
+    background-color: #2b5fc0 !important;
     color: white !important;
 }
 /* Inputs */
 .stTextInput>div>div>input {
-    background-color: #1e1e1e !important;
-    color: #f5f5f5 !important;
-    border: 1px solid #333 !important;
+    background-color: #1c2750 !important;
+    color: #ffffff !important;
+    border: 1px solid #3a4a7c !important;
     border-radius: 6px !important;
 }
 /* DataFrame */
 [data-testid="stDataFrame"] {
-    background-color: #1e1e1e !important;
+    background-color: #16224d !important;
     border-radius: 6px !important;
-    border: 1px solid #333 !important;
+    border: 1px solid #2b3b70 !important;
     padding: 10px;
 }
 /* Mensagens */
@@ -159,6 +159,7 @@ elif st.session_state.pagina == "devolucao":
 
 elif st.session_state.pagina == "historico":
     st.subheader("🕓 Histórico de Movimentações")
+
     if "mostrar_historico" not in st.session_state:
         st.session_state.mostrar_historico = True
 
@@ -174,11 +175,12 @@ elif st.session_state.pagina == "historico":
                 "historico_movimentacoes.csv"
             )
 
-    # Botão de limpar apenas a exibição
-    if st.button("🧹 Limpar Histórico da Tela"):
-        if st.confirm("Tem certeza que deseja limpar a exibição do histórico? Os dados não serão apagados do sistema."):
-            st.session_state.mostrar_historico = False
-            st.info("🧼 Histórico removido da tela (dados permanecem salvos).")
+    st.markdown("---")
+    st.write("🧹 **Limpar histórico da tela (sem apagar do banco ou relatórios):**")
+
+    if st.button("🧼 Limpar Histórico da Tela"):
+        st.session_state.mostrar_historico = False
+        st.info("Histórico ocultado da tela. Dados e relatórios permanecem intactos.")
 
 # ==============================
 # 📊 SITUAÇÃO ATUAL (FIXA)
@@ -208,6 +210,6 @@ else:
 # ==============================
 st.markdown("---")
 st.markdown(
-    "<p style='text-align:center; color:#888;'>© 2025 - Sistema Corporativo de Controle de Chaves | Desenvolvido por Lucas Trolesi</p>",
+    "<p style='text-align:center; color:#d1d5db;'>© 2025 - Sistema Corporativo de Controle de Chaves | Desenvolvido por Lucas Trolesi</p>",
     unsafe_allow_html=True
 )
