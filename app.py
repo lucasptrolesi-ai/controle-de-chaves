@@ -151,7 +151,7 @@ elif menu4:
 # 📋 PÁGINAS FUNCIONAIS
 # ==============================
 if st.session_state.pagina == "emprestimo":
-    st.subheader("<span style='color:black;'>➕</span> Registrar Novo Empréstimo de Chave", unsafe_allow_html=True)
+    st.markdown("<h3><span style='color:black;'>➕</span> Registrar Novo Empréstimo de Chave</h3>", unsafe_allow_html=True)
     chave = st.text_input("Número da Chave:")
     usuario = st.text_input("Usuário / Chapa:")
     if st.button("💾 Registrar Empréstimo"):
@@ -162,7 +162,7 @@ if st.session_state.pagina == "emprestimo":
             st.warning("⚠️ Preencha todos os campos antes de salvar.")
 
 elif st.session_state.pagina == "devolucao":
-    st.subheader("<span style='color:black;'>🔁</span> Registrar Devolução de Chave", unsafe_allow_html=True)
+    st.markdown("<h3><span style='color:black;'>🔁</span> Registrar Devolução de Chave</h3>", unsafe_allow_html=True)
     chave = st.text_input("Número da Chave para Devolução:")
     usuario = st.text_input("Usuário / Chapa:")
     if st.button("📦 Confirmar Devolução"):
@@ -173,7 +173,7 @@ elif st.session_state.pagina == "devolucao":
             st.warning("⚠️ Preencha todos os campos antes de confirmar.")
 
 elif st.session_state.pagina == "historico":
-    st.subheader("<span style='color:black;'>🕓</span> Histórico de Movimentações", unsafe_allow_html=True)
+    st.markdown("<h3><span style='color:black;'>🕓</span> Histórico de Movimentações</h3>", unsafe_allow_html=True)
 
     if "mostrar_historico" not in st.session_state:
         st.session_state.mostrar_historico = True
@@ -209,7 +209,7 @@ elif st.session_state.pagina == "historico":
 # 📊 SITUAÇÃO ATUAL
 # ==============================
 st.markdown("---")
-st.subheader("<span style='color:black;'>📋</span> Situação Atual das Chaves", unsafe_allow_html=True)
+st.markdown("<h3><span style='color:black;'>📋</span> Situação Atual das Chaves</h3>", unsafe_allow_html=True)
 
 df = carregar_chaves()
 if df.empty:
