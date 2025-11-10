@@ -9,12 +9,18 @@ import io
 # ==============================
 st.set_page_config(page_title="Controle de Chaves", layout="wide")
 
-# Tema azul-marinho com botões pretos e hover azul
+# ======== ESTILO VISUAL ========
 st.markdown("""
 <style>
+/* ===== TEMA GERAL ===== */
 body {background-color: #0f1a3d; color: #ffffff;}
 .stApp {background-color: #0f1a3d;}
 h1, h2, h3, h4, label, p, span, div, input, button, textarea {color: #ffffff !important;}
+
+/* ===== ÍCONES (emojis pretos) ===== */
+h1 span, h2 span, h3 span, h4 span {
+    color: #000000 !important;
+}
 
 /* ===== BOTÕES ===== */
 div[data-testid="stHorizontalBlock"] button,
@@ -59,7 +65,8 @@ div[data-testid="stHorizontalBlock"] button:hover,
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>🔑 Sistema Corporativo de Controle de Chaves</h1>", unsafe_allow_html=True)
+# ======== TÍTULO ========
+st.markdown("<h1><span style='color:black;'>🔑</span> Sistema Corporativo de Controle de Chaves</h1>", unsafe_allow_html=True)
 
 # ==============================
 # 🔗 BANCO DE DADOS (SQLite)
@@ -144,7 +151,7 @@ elif menu4:
 # 📋 PÁGINAS FUNCIONAIS
 # ==============================
 if st.session_state.pagina == "emprestimo":
-    st.subheader("➕ Registrar Novo Empréstimo de Chave")
+    st.subheader("<span style='color:black;'>➕</span> Registrar Novo Empréstimo de Chave", unsafe_allow_html=True)
     chave = st.text_input("Número da Chave:")
     usuario = st.text_input("Usuário / Chapa:")
     if st.button("💾 Registrar Empréstimo"):
@@ -155,7 +162,7 @@ if st.session_state.pagina == "emprestimo":
             st.warning("⚠️ Preencha todos os campos antes de salvar.")
 
 elif st.session_state.pagina == "devolucao":
-    st.subheader("🔁 Registrar Devolução de Chave")
+    st.subheader("<span style='color:black;'>🔁</span> Registrar Devolução de Chave", unsafe_allow_html=True)
     chave = st.text_input("Número da Chave para Devolução:")
     usuario = st.text_input("Usuário / Chapa:")
     if st.button("📦 Confirmar Devolução"):
@@ -166,7 +173,7 @@ elif st.session_state.pagina == "devolucao":
             st.warning("⚠️ Preencha todos os campos antes de confirmar.")
 
 elif st.session_state.pagina == "historico":
-    st.subheader("🕓 Histórico de Movimentações")
+    st.subheader("<span style='color:black;'>🕓</span> Histórico de Movimentações", unsafe_allow_html=True)
 
     if "mostrar_historico" not in st.session_state:
         st.session_state.mostrar_historico = True
@@ -202,7 +209,7 @@ elif st.session_state.pagina == "historico":
 # 📊 SITUAÇÃO ATUAL
 # ==============================
 st.markdown("---")
-st.subheader("📋 Situação Atual das Chaves")
+st.subheader("<span style='color:black;'>📋</span> Situação Atual das Chaves", unsafe_allow_html=True)
 
 df = carregar_chaves()
 if df.empty:
