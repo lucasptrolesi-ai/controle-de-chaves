@@ -236,3 +236,4 @@ st.markdown(
     "<p style='text-align:center; color:#d1d5db;'>© 2025 - Sistema Corporativo de Controle de Chaves | Desenvolvido por Lucas Trolesi</p>",
     unsafe_allow_html=True
 )
+# Forçando atualização - versão corrigida com ícones pretos e títulos em markdown
