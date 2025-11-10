@@ -9,14 +9,15 @@ import io
 # ==============================
 st.set_page_config(page_title="Controle de Chaves", layout="wide")
 
+# Tema escuro elegante
 st.markdown("""
 <style>
-body {background-color: #f5f7fa; color: #2e2e2e;}
-.stApp {background-color: #f5f7fa;}
-h1, h2, h3, h4 {text-align: center; color: #005f73;}
+body {background-color: #0e1117; color: #e0e0e0;}
+.stApp {background-color: #0e1117;}
+h1, h2, h3, h4 {text-align: center; color: #4db8ff;}
 /* Navbar */
 div[data-testid="stHorizontalBlock"] button {
-    background-color: #008CBA !important;
+    background-color: #1e3a8a !important;
     color: white !important;
     border: none !important;
     border-radius: 8px !important;
@@ -26,21 +27,21 @@ div[data-testid="stHorizontalBlock"] button {
     margin-right: 10px !important;
 }
 div[data-testid="stHorizontalBlock"] button:hover {
-    background-color: #00a2d3 !important;
+    background-color: #2563eb !important;
     color: white !important;
 }
 /* Inputs */
 .stTextInput>div>div>input {
-    background-color: #ffffff !important;
-    color: #2e2e2e !important;
-    border: 1px solid #ccd4dd !important;
+    background-color: #1e1e1e !important;
+    color: #f5f5f5 !important;
+    border: 1px solid #333 !important;
     border-radius: 6px !important;
 }
 /* DataFrame */
 [data-testid="stDataFrame"] {
-    background-color: #ffffff !important;
+    background-color: #1e1e1e !important;
     border-radius: 6px !important;
-    border: 1px solid #e0e0e0 !important;
+    border: 1px solid #333 !important;
     padding: 10px;
 }
 /* Mensagens */
@@ -158,16 +159,26 @@ elif st.session_state.pagina == "devolucao":
 
 elif st.session_state.pagina == "historico":
     st.subheader("🕓 Histórico de Movimentações")
-    df_hist = carregar_historico()
-    if df_hist.empty:
-        st.info("Nenhuma movimentação registrada ainda.")
-    else:
-        st.dataframe(df_hist, use_container_width=True)
-        st.download_button(
-            "⬇️ Exportar Histórico CSV",
-            df_hist.to_csv(index=False).encode("utf-8"),
-            "historico_movimentacoes.csv"
-        )
+    if "mostrar_historico" not in st.session_state:
+        st.session_state.mostrar_historico = True
+
+    if st.session_state.mostrar_historico:
+        df_hist = carregar_historico()
+        if df_hist.empty:
+            st.info("Nenhuma movimentação registrada ainda.")
+        else:
+            st.dataframe(df_hist, use_container_width=True)
+            st.download_button(
+                "⬇️ Exportar Histórico CSV",
+                df_hist.to_csv(index=False).encode("utf-8"),
+                "historico_movimentacoes.csv"
+            )
+
+    # Botão de limpar apenas a exibição
+    if st.button("🧹 Limpar Histórico da Tela"):
+        if st.confirm("Tem certeza que deseja limpar a exibição do histórico? Os dados não serão apagados do sistema."):
+            st.session_state.mostrar_historico = False
+            st.info("🧼 Histórico removido da tela (dados permanecem salvos).")
 
 # ==============================
 # 📊 SITUAÇÃO ATUAL (FIXA)
@@ -197,6 +208,6 @@ else:
 # ==============================
 st.markdown("---")
 st.markdown(
-    "<p style='text-align:center; color:#555;'>© 2025 - Sistema Corporativo de Controle de Chaves | Desenvolvido por Lucas Trolesi</p>",
+    "<p style='text-align:center; color:#888;'>© 2025 - Sistema Corporativo de Controle de Chaves | Desenvolvido por Lucas Trolesi</p>",
     unsafe_allow_html=True
 )
